@@ -27,7 +27,11 @@ add = PopFunction(["a", "b"], ["sum"], "Add the two numbers")
 ```
 Then you can call the function using
 ```python
-answer = add(1, 2)
+answer = add(1, 2)["sum"]
+```
+If you want to view the raw API response, you can use
+```python
+raw_answer = add(1, 2)["raw"]
 ```
 Optionally, you can specify these parameters:
 ```python
