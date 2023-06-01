@@ -8,10 +8,12 @@ from datetime import datetime
 from typing import Union, Callable
 from prompts import TOOL_PROMPT_PREFIX, TOOL_PROMPT_SUFFIX, INDENT
 
+
 class OpenAIMessage(dict):
     """
     Class representing a message. A message includes role and content.
     """
+
     def __init__(self, role: str, content: str) -> None:
         """
         Initialize a Message instance
@@ -30,6 +32,7 @@ class OpenAIAgent:
     """
     An OpenAI chat agent that uses the OpenAI API to generate responses
     """
+
     def __init__(
         self,
         system_prompt: str = "",
@@ -38,7 +41,7 @@ class OpenAIAgent:
         model: str = "gpt-3.5-turbo",
         temperature: float = 0.5,
         output_keys: List[str] = [],
-        tools: List[Callable] = []
+        tools: List[Callable] = [],
     ) -> None:
         """
         Initialize the chatbot
@@ -95,7 +98,9 @@ class OpenAIAgent:
                 temperature=self.temperature,
             )
             response_message = OpenAIMessage(
-                completion['choices'][0]['message']['role'], completion['choices'][0]['message']['content'])
+                completion["choices"][0]["message"]["role"],
+                completion["choices"][0]["message"]["content"],
+            )
         except openai.error.RateLimitError as e:
             logging.error(str(e))
             logging.info("Retrying...")
@@ -116,7 +121,7 @@ class OpenAIAgent:
         summary = self.send_history().content
         summary = "This is a summary of the conversation so far\n" + summary
         summary_message = OpenAIMessage("system", summary)
-        self.history = self.history[1:len(self.history) - keep_recent]
+        self.history = self.history[1 : len(self.history) - keep_recent]
         self.history.insert(1, summary_message)
         logging.info("Chatbot history summarized. Summary: %s", summary)
 
@@ -130,7 +135,7 @@ class OpenAIAgent:
         else:
             logging.error("Cannot pop oldest history. History is empty.")
             raise ValueError("Cannot pop oldest history. History is empty.")
-    
+
     def reset_history(self) -> None:
         """
         Reset the chatbot's history to the first system message
@@ -165,10 +170,13 @@ class OpenAIAgent:
             output_key_str = str(self.output_keys).replace("'", '"')
             prompt_of_output_format = f"Your output should be a JSON string with the following keys: {output_key_str}\n"
         prompt = "User: " + prompt
-        logging.debug("Running chatbot with prompt: %s",
-                      prompt_of_time + prompt_of_output_format + prompt)
-        self.add_message(OpenAIMessage(role, prompt_of_time +
-                         prompt_of_output_format + prompt))
+        logging.debug(
+            "Running chatbot with prompt: %s",
+            prompt_of_time + prompt_of_output_format + prompt,
+        )
+        self.add_message(
+            OpenAIMessage(role, prompt_of_time + prompt_of_output_format + prompt)
+        )
         # Check token usage before sending history
         while self.check_token_usage() >= 1:
             # self.summarize_history()
@@ -185,14 +193,20 @@ class OpenAIAgent:
 
         # Call the tool if the output contains a tool name
         args = None
-        if parsed_content.get("tool", None) is not None and parsed_content.get("tool", None) != "":
+        if (
+            parsed_content.get("tool", None) is not None
+            and parsed_content.get("tool", None) != ""
+        ):
             args = parsed_content.get("args", None)
             # Make sure args are raw strings
             if args is not None:
                 args = [str(arg) for arg in args]
             tool_output = self.use_tool(parsed_content["tool"], args)
-            tool_output = "Tool output: " + tool_output + \
-                "\nWith this output, you should be able to answer the previous question.\n"
+            tool_output = (
+                "Tool output: "
+                + tool_output
+                + "\nWith this output, you should be able to answer the previous question.\n"
+            )
             # Run with the tool output as the prompt
             return self.run(tool_output, "system")
         return parsed_content
@@ -213,7 +227,7 @@ class OpenAIAgent:
         if last_user_message_index == -1:
             raise ValueError("No user message found in history")
         # Remove all messages after the last user message
-        self.history = self.history[:last_user_message_index + 1]
+        self.history = self.history[: last_user_message_index + 1]
         return self.run(prompt)
 
     def parse_output(self, output: str) -> Union[str, dict]:
@@ -234,13 +248,17 @@ class OpenAIAgent:
         # Select the text between the first and last curly braces
         try:
             # Get the text between the first and last curly braces
-            output = output[output.index("{"):output.rindex("}") + 1]
+            output = output[output.index("{") : output.rindex("}") + 1]
             output_dict = json.loads(output)
         except json.decoder.JSONDecodeError as e:
             logging.error(str(e))
             # Provide the exception to chatbot
-            output = self.run("There was an error parsing your response: " + str(
-                e) + "\nTry to fix your response format and run again.\n", "system")
+            output = self.run(
+                "There was an error parsing your response: "
+                + str(e)
+                + "\nTry to fix your response format and run again.\n",
+                "system",
+            )
             # Try parsing again
             # TODO: Add a limit to the number of times the chatbot can try parsing to prevent infinite loops
             if type(output) == dict:
@@ -264,7 +282,7 @@ class OpenAIAgent:
         Returns:
             str: The output of the tool.
         """
-        print(f"Using tool: \"{tool_name}\" with args: {args}")
+        print(f'Using tool: "{tool_name}" with args: {args}')
         # input("Press Enter to continue...")
         logging.info("Using tool %s with args %s", tool_name, args)
         # Find the tool
@@ -308,8 +326,7 @@ class OpenAIAgent:
         try:
             with open(path, "r") as f:
                 history = json.load(f)
-                self.history = [OpenAIMessage(m["role"], m["content"])
-                                for m in history]
+                self.history = [OpenAIMessage(m["role"], m["content"]) for m in history]
         except FileNotFoundError as e:
             logging.error(str(e))
             return
