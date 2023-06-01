@@ -130,6 +130,12 @@ class OpenAIAgent:
         else:
             logging.error("Cannot pop oldest history. History is empty.")
             raise ValueError("Cannot pop oldest history. History is empty.")
+    
+    def reset_history(self) -> None:
+        """
+        Reset the chatbot's history to the first system message
+        """
+        self.history = [self.history[0]]
 
     def check_token_usage(self) -> float:
         """
