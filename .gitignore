@@ -1,0 +1,15 @@
+# Common IDE files
+.vscode/
+.idea/
+
+# Python virtual environments
+venv/
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+
+# openai_api_key.txt
+openai_api_key.txt
+
