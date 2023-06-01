@@ -4,7 +4,7 @@
 
 To use POP, simply clone this repo:
 ```bash
-git clone https://github.com/Microwave-WYB/POP.git
+git clone https://github.com/Microwave-WYB/POP.git && cd POP
 ```
 
 Make sure you have an OpenAI API key in your environment variable: `OPENAI_API_KEY`.
