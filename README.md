@@ -36,7 +36,6 @@ raw_answer = add(1, 2)["raw"]
 Optionally, you can specify these parameters:
 ```python
 add = PopFunction(
-    add = PopFunction(
     input_keys=["a", "b"], # The names of the input parameters
     output_keys=["sum"], # The names of the output parameters
     description="Add two numbers.", # The description of the task
