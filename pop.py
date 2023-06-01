@@ -59,7 +59,9 @@ class PopFunction(OpenAIAgent):
         """
         logging.info(f"Calling function {self.name} with args {args} and kwds {kwds}")
         if self.assert_callback is not None:
-            assert self.assert_callback(*args, **kwds), "Input does not satisfy assertion."
+            assert self.assert_callback(
+                *args, **kwds
+            ), "Input does not satisfy assertion."
         input_dict = dict(zip(self.input_keys, args))
         input_dict.update(kwds)
         input_dict_str = str(input_dict).replace("'", '"')
@@ -72,8 +74,8 @@ class PopFunction(OpenAIAgent):
                 )
         return output_dict
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
     add = PopFunction(
         input_keys=["a", "b"],
         output_keys=["sum"],
