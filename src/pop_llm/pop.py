@@ -1,4 +1,5 @@
 import logging
+import json
 from typing import Any, List, Callable
 from .chat_agent import OpenAIAgent
 from .prompts import POP_PROMPT_PREFIX
@@ -37,6 +38,7 @@ class PopFunction(OpenAIAgent):
         """
         self.input_keys = input_keys
         self.name = name
+        self.description = description
         self.output_keys = output_keys
         self.system_prompt = POP_PROMPT_PREFIX
         self.system_prompt += f"Your name is: {self.name}.\n"
@@ -44,11 +46,11 @@ class PopFunction(OpenAIAgent):
         self.system_prompt += f"{INDENT}{description}\n"
         self.system_prompt += f"Your input keys are: \n"
         self.system_prompt += (
-            "[" + ", ".join([f'"{key}"' for key in self.input_keys]) + "].\n"
+            json.dumps(self.input_keys) + "\n"
         )
         self.system_prompt += f"Your output keys are: \n"
         self.system_prompt += (
-            "[" + ", ".join([f'"{key}"' for key in self.output_keys]) + "].\n"
+            json.dumps(self.output_keys) + "\n"
         )
         super().__init__(
             system_prompt=self.system_prompt,
@@ -57,17 +59,16 @@ class PopFunction(OpenAIAgent):
             history=[],
             tools=tools,
         )
-        self.assert_callback = input_assert
-    
-    def __doc__(self):
-        doc = f"POP function {self.name}.\n"
-        doc += self.description
-        doc += "\n\nArgs:\n"
+        self.input_assert = input_assert
+
+        doc = f"Description: {self.description}\n"
+        doc += "\nArgs:\n"
         for key in self.input_keys:
-            doc += f"{INDENT}{key} (Any): function input.\n"
+            doc += f"{INDENT}{key}: function input.\n"
         doc += "\nReturns:\n"
         for key in self.output_keys:
-            doc += f"{INDENT}{key} (Any): function output.\n"
+            doc += f"{INDENT}{key}: function output.\n"
+        self.__doc__ = doc
 
     def __call__(self, *args: Any, **kwds: Any) -> dict:
         """
@@ -77,10 +78,8 @@ class PopFunction(OpenAIAgent):
             dict: The output of the function.
         """
         logging.info(f"Calling function {self.name} with args {args} and kwds {kwds}")
-        if self.assert_callback is not None:
-            assert self.assert_callback(
-                *args, **kwds
-            ), "Input does not satisfy assertion."
+        if self.input_assert is not None:
+            assert self.input_assert(*args, **kwds), "Input does not satisfy assertion."
         input_dict = dict(zip(self.input_keys, args))
         input_dict.update(kwds)
         input_dict_str = str(input_dict).replace("'", '"')
@@ -91,8 +90,12 @@ class PopFunction(OpenAIAgent):
                 # raise KeyError(
                 #     f"Output key {key} is not found in the output dictionary."
                 # )
-                logging.warning(f"Output key '{key}' is not found in the output dictionary.")
-                self.run(f"Make sure you have all the required output keys: {self.output_keys}.")
+                logging.warning(
+                    f"Output key '{key}' is not found in the output dictionary."
+                )
+                self.run(
+                    f"Make sure you have all the required output keys: {self.output_keys}."
+                )
         return output_dict
 
 
