@@ -67,8 +67,8 @@ def secret_function(a: int, b: int) -> int:
     """
     A secret function
     Args:
-        a: The first string
-        b: The second string
+        a: The first number
+        b: The second number
     Returns:
         int: The result of the secret function
     """
