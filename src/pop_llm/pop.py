@@ -41,6 +41,7 @@ class PopFunction(OpenAIAgent):
             system_prompt=self.system_prompt,
             output_keys=output_keys,
             temperature=temperature,
+            history=[]
         )
         self.assert_callback = input_assert
 
