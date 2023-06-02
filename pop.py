@@ -44,12 +44,6 @@ class PopFunction(OpenAIAgent):
         )
         self.assert_callback = input_assert
 
-    def __getitem__(self, key):
-        return self.__dict__[key]
-
-    def __setitem__(self, key, value):
-        self.__dict__[key] = value
-
     def __call__(self, *args: Any, **kwds: Any) -> dict:
         """
         Run the function by sending input to the chatbot.
