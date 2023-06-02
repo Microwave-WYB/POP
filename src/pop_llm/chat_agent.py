@@ -74,6 +74,12 @@ class OpenAIAgent:
         if not len(self.history):
             self.history.append(OpenAIMessage("system", self.system_prompt))
         self.tools = tools
+        # Validate tools
+        for tool in self.tools:
+            if not callable(tool):
+                raise ValueError("All tools must be callable.")
+            if not tool.__doc__:
+                raise ValueError("All tools must have a docstring.")
 
     def add_message(self, message: OpenAIMessage) -> None:
         """
@@ -169,7 +175,7 @@ class OpenAIAgent:
         if len(self.output_keys):
             output_key_str = str(self.output_keys).replace("'", '"')
             prompt_of_output_format = f"Your output should be a JSON string with the following keys: {output_key_str}\n"
-        prompt = "User: " + prompt
+        prompt = "Input: " + prompt
         logging.debug(
             "Running chatbot with prompt: %s",
             prompt_of_time + prompt_of_output_format + prompt,
@@ -191,19 +197,16 @@ class OpenAIAgent:
 
         # Call the tool if the output contains a tool name
         args = None
-        if (
-            parsed_content.get("tool", None) is not None
-            and parsed_content.get("tool", None) != ""
-        ):
+        if (parsed_content.get("tool", None) not in {None, ""}):
             args = parsed_content.get("args", None)
             # Make sure args are raw strings
             if args is not None:
                 args = [str(arg) for arg in args]
             tool_output = self.use_tool(parsed_content["tool"], args)
-            tool_output = (
-                "Tool output: "
-                + tool_output
-                + "\nWith this output, you should be able to answer the previous question.\n"
+            tool_output = f"Tool output: {tool_output}\n"
+            tool_output += (
+                "\n Observe the output and continue the conversation."
+                + "\n Do not use the tool if you are ready to complete the task."
             )
             # Run with the tool output as the prompt
             return self.run(tool_output, "system")
@@ -293,10 +296,10 @@ class OpenAIAgent:
             return f"Tool {tool_name} not found. Please try a valid tool."
         # Get args
         try:
-            if args is None:
-                return tool()
+            if args is None or len(args) == 0:
+                return str(tool())
             else:
-                return tool(*args)
+                return str(tool(*args))
         except Exception as e:
             return f"Error using tool {tool_name}: {str(e)}"
 
