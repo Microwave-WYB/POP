@@ -1,16 +1,20 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "pop-llm"
-version = "0.0.1"
+version = "0.0.3"
 authors = [
   { name="Yibo Wei", email="david_wyb2001@outlook.com" },
 ]
 description = "A Python library for Prompt Oriented Programming with Large Language Models"
 readme = "README.md"
 requires-python = ">=3.7"
+dependencies = [
+    "tiktoken",
+    "openai"
+]
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
