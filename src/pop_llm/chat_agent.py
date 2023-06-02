@@ -6,7 +6,7 @@ import os
 from typing import List
 from datetime import datetime
 from typing import Union, Callable
-from prompts import TOOL_PROMPT_PREFIX, TOOL_PROMPT_SUFFIX, INDENT
+from .prompts import TOOL_PROMPT_PREFIX, TOOL_PROMPT_SUFFIX, INDENT
 
 
 class OpenAIMessage(dict):
