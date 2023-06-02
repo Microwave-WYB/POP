@@ -21,7 +21,20 @@ class PopFunction(OpenAIAgent):
         name: str = "function",
         input_assert: Callable[[Any], bool] = None,
         temperature: float = 0.0,
+        tools: List[Callable] = None,
     ) -> None:
+        """
+        Initialize a POP function.
+
+        Args:
+            input_keys (List[str]): The input keys of the function.
+            output_keys (List[str]): The output keys of the function.
+            description (str): The description of the function.
+            name (str, optional): The name of the function. Defaults to "function".
+            input_assert (Callable[[Any], bool], optional): The assertion function for the input. Defaults to None.
+            temperature (float, optional): The temperature of the chatbot. Defaults to 0.0.
+            tools (List[Callable], optional): The tools of the chatbot. Defaults to None.
+        """
         self.input_keys = input_keys
         self.name = name
         self.output_keys = output_keys
@@ -41,9 +54,20 @@ class PopFunction(OpenAIAgent):
             system_prompt=self.system_prompt,
             output_keys=output_keys,
             temperature=temperature,
-            history=[]
+            history=[],
+            tools=tools,
         )
         self.assert_callback = input_assert
+    
+    def __doc__(self):
+        doc = f"POP function {self.name}.\n"
+        doc += self.description
+        doc += "\n\nArgs:\n"
+        for key in self.input_keys:
+            doc += f"{INDENT}{key} (Any): function input.\n"
+        doc += "\nReturns:\n"
+        for key in self.output_keys:
+            doc += f"{INDENT}{key} (Any): function output.\n"
 
     def __call__(self, *args: Any, **kwds: Any) -> dict:
         """
@@ -64,9 +88,11 @@ class PopFunction(OpenAIAgent):
         # raise error if output_dict does not contain all output_keys
         for key in self.output_keys:
             if key not in output_dict:
-                raise KeyError(
-                    f"Output key {key} is not found in the output dictionary."
-                )
+                # raise KeyError(
+                #     f"Output key {key} is not found in the output dictionary."
+                # )
+                logging.warning(f"Output key '{key}' is not found in the output dictionary.")
+                self.run(f"Make sure you have all the required output keys: {self.output_keys}.")
         return output_dict
 
 
