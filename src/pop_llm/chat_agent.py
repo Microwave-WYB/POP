@@ -186,8 +186,6 @@ class OpenAIAgent:
             except ValueError:
                 raise ValueError("Token usage exceeded maximum tokens.")
         response = self.send_history()
-        # Add response to history
-        self.add_message(response)
         # Parse output if output keys are specified
         parsed_content = self.parse_output(response.content)
 
