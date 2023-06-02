@@ -1,7 +1,7 @@
 import logging
 from typing import Any, List, Callable
-from chat_agent import OpenAIAgent
-from prompts import POP_PROMPT_PREFIX
+from .chat_agent import OpenAIAgent
+from .prompts import POP_PROMPT_PREFIX
 
 INDENT = "    "
 
