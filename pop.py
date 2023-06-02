@@ -21,7 +21,7 @@ class PopFunction(OpenAIAgent):
         name: str = "function",
         input_assert: Callable[[Any], bool] = None,
         temperature: float = 0.0,
-    ):
+    ) -> None:
         self.input_keys = input_keys
         self.name = name
         self.output_keys = output_keys
