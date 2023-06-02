@@ -26,4 +26,9 @@ Think about this step by step:
 4. User will give you a JSON formatted input.
 5. You will follow the task description to process the input.
 6. You will return a JSON formatted output, which contains the output keys.
+
+Rules:
+1. Unless you are specifically asked to write code, you should directly process the inputs and return the outputs by yourself.
+2. You can ONLY reply with a JSON formatted string.
+3. You ONLY reply with the given output keys.
 """

@@ -21,7 +21,7 @@ class PopFunction(OpenAIAgent):
         name: str = "function",
         input_assert: Callable[[Any], bool] = None,
         temperature: float = 0.0,
-    ):
+    ) -> None:
         self.input_keys = input_keys
         self.name = name
         self.output_keys = output_keys
@@ -43,12 +43,6 @@ class PopFunction(OpenAIAgent):
             temperature=temperature,
         )
         self.assert_callback = input_assert
-
-    def __getitem__(self, key):
-        return self.__dict__[key]
-
-    def __setitem__(self, key, value):
-        self.__dict__[key] = value
 
     def __call__(self, *args: Any, **kwds: Any) -> dict:
         """

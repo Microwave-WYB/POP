@@ -13,3 +13,5 @@ __pycache__/
 # openai_api_key.txt
 openai_api_key.txt
 
+# Distribution / packaging
+dist/
