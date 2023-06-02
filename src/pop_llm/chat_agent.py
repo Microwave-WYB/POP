@@ -130,7 +130,7 @@ class OpenAIAgent:
         Pop the oldest message from the chatbot's history
         """
         # Keep the first system message
-        if len(self.history) > 1:
+        if len(self.history) > 2:
             self.history.pop(1)
         else:
             logging.error("Cannot pop oldest history. History is empty.")
