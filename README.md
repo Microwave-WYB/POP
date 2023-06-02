@@ -17,6 +17,9 @@ echo $OPENAI_API_KEY > openai_api_key.txt
 ```
 
 ## Usage
+
+### Getting Started
+
 You can define a "function" using natural language. Simply define a `PopFunction` with three required parameters:
 
 ```python
@@ -50,5 +53,40 @@ add = PopFunction(
     temperature=0 # Set to 0 for deterministic, 1 for the most randomness
 )
 ```
+
+### Allowing LLM to use external tools
+
+You can provide a list of external tools. Simply define some well documented functions and pass them to `PopFunction`.
+
+The LLM Agent will automatically use these tools to help it complete the task.
+
+For example, you have a secret function:
+
+```python
+def secret_function(a: int, b: int) -> int:
+    """
+    A secret function
+    Args:
+        a: The first string
+        b: The second string
+    Returns:
+        int: The result of the secret function
+    """
+    return a * 2 + b - 1
+
+secret_function_runner = PopFunction(
+    input_keys=["a", "b"],
+    output_keys=["output"],
+    description="Return the result of the secret function on input a and b.",
+    name = "secret_function",
+    input_assert=lambda a, b: type(a) == int and type(b) == int,
+    temperature=0,
+    tools=[secret_function]
+)
+```
+
+Be creative when defining your tools. This can be a web API, a database call, reading a file, etc.
+
+Note: Your function input should be able to be parsed from JSON. The output should be able to be converted to string without loosing information. (i.e. str(output) is not something like `<object at 0x7f9c2c0b4a90>`)
 
 For more examples, please refer to the [Demo Notebook](./demo.ipynb)

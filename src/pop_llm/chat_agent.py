@@ -199,9 +199,6 @@ class OpenAIAgent:
         args = None
         if (parsed_content.get("tool", None) not in {None, ""}):
             args = parsed_content.get("args", None)
-            # Make sure args are raw strings
-            if args is not None:
-                args = [str(arg) for arg in args]
             tool_output = self.use_tool(parsed_content["tool"], args)
             tool_output = f"Tool output: {tool_output}\n"
             tool_output += (
@@ -272,7 +269,7 @@ class OpenAIAgent:
             parsed_output[key] = output_dict.get(key, None)
         return parsed_output
 
-    def use_tool(self, tool_name: str, args: List[str]) -> str:
+    def use_tool(self, tool_name: str, args: list) -> any:
         """
         Use a tool with the chatbot
 
@@ -297,9 +294,9 @@ class OpenAIAgent:
         # Get args
         try:
             if args is None or len(args) == 0:
-                return str(tool())
+                return tool()
             else:
-                return str(tool(*args))
+                return tool(*args)
         except Exception as e:
             return f"Error using tool {tool_name}: {str(e)}"
 
