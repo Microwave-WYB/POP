@@ -21,7 +21,7 @@ class PopFunction(OpenAIAgent):
         name: str = "function",
         input_assert: Callable[[Any], bool] = None,
         temperature: float = 0.0,
-        tools: List[Callable] = None,
+        tools: List[Callable] = [],
     ) -> None:
         """
         Initialize a POP function.
