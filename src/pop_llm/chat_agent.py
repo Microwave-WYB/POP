@@ -269,7 +269,7 @@ class OpenAIAgent:
             parsed_output[key] = output_dict.get(key, None)
         return parsed_output
 
-    def use_tool(self, tool_name: str, args: list) -> str:
+    def use_tool(self, tool_name: str, args: list) -> any:
         """
         Use a tool with the chatbot
 
