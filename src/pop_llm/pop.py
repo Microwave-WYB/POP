@@ -6,10 +6,8 @@ from .prompts import POP_PROMPT_PREFIX
 
 INDENT = "    "
 
-from typing import List
 
-
-class PopFunction(OpenAIAgent):
+class PopFunction:
     """
     A class for Prompt Oriented Programming (POP) functions.
     """
@@ -23,6 +21,7 @@ class PopFunction(OpenAIAgent):
         input_assert: Callable[[Any], bool] = None,
         temperature: float = 0.0,
         tools: List[Callable] = [],
+        agent: OpenAIAgent = None,
     ) -> None:
         """
         Initialize a POP function.
@@ -35,6 +34,7 @@ class PopFunction(OpenAIAgent):
             input_assert (Callable[[Any], bool], optional): The assertion function for the input. Defaults to None.
             temperature (float, optional): The temperature of the chatbot. Defaults to 0.0.
             tools (List[Callable], optional): The tools of the chatbot. Defaults to None.
+            agent (OpenAIAgent, optional): The agent of the chatbot. Defaults to a default OpenAIAgent instance.
         """
         self.input_keys = input_keys
         self.name = name
@@ -45,20 +45,18 @@ class PopFunction(OpenAIAgent):
         self.system_prompt += f"Your task is described as follows:\n"
         self.system_prompt += f"{INDENT}{description}\n"
         self.system_prompt += f"Your input keys are: \n"
-        self.system_prompt += (
-            json.dumps(self.input_keys) + "\n"
-        )
+        self.system_prompt += json.dumps(self.input_keys) + "\n"
         self.system_prompt += f"Your output keys are: \n"
-        self.system_prompt += (
-            json.dumps(self.output_keys) + "\n"
-        )
-        super().__init__(
+        self.system_prompt += json.dumps(self.output_keys) + "\n"
+
+        self.agent = agent if agent else OpenAIAgent(
             system_prompt=self.system_prompt,
             output_keys=output_keys,
             temperature=temperature,
             history=[],
             tools=tools,
         )
+
         self.input_assert = input_assert
 
         doc = f"Description: {self.description}\n"
@@ -83,17 +81,14 @@ class PopFunction(OpenAIAgent):
         input_dict = dict(zip(self.input_keys, args))
         input_dict.update(kwds)
         input_dict_str = str(input_dict).replace("'", '"')
-        output_dict = self.run(input_dict_str)
+        output_dict = self.agent.run(input_dict_str)
         # raise error if output_dict does not contain all output_keys
         for key in self.output_keys:
             if key not in output_dict:
-                # raise KeyError(
-                #     f"Output key {key} is not found in the output dictionary."
-                # )
                 logging.warning(
                     f"Output key '{key}' is not found in the output dictionary."
                 )
-                self.run(
+                self.agent.run(
                     f"Make sure you have all the required output keys: {self.output_keys}."
                 )
         return output_dict

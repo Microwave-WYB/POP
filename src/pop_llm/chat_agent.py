@@ -160,8 +160,27 @@ class OpenAIAgent:
         token_usage = len(enc.encode(contents)) / self.max_tokens
         logging.debug("Token usage: %.2f", token_usage)
         return token_usage
+    
+    def get_prompt(self, input_str: str) -> str:
+        """
+        Create a formatted prompt with current datetime and output key information.
 
-    def run(self, prompt: str, role: str = "user") -> str:
+        Args:
+            prompt (str): The initial prompt.
+        
+        Returns:
+            str: The formatted prompt.
+        """
+        prompt_of_time = f"current datetime: {datetime.now()}, today is {datetime.now().strftime('%A')}\n"
+        if len(self.output_keys):
+            output_key_str = str(self.output_keys).replace("'", '"')
+            prompt_of_output_format = f"Your output should be a JSON string with the following keys: {output_key_str}\n"
+        else:
+            prompt_of_output_format = ""
+        formatted_prompt = "Input: " + input_str
+        return prompt_of_time + prompt_of_output_format + formatted_prompt
+
+    def run(self, input_str: str, role: str = "user") -> str:
         """
         Run the chatbot with a given prompt
 
@@ -171,22 +190,13 @@ class OpenAIAgent:
         Returns:
             str: The response content from the chatbot.
         """
-        prompt_of_time = f"current datetime: {datetime.now()}, today is {datetime.now().strftime('%A')}\n"
-        if len(self.output_keys):
-            output_key_str = str(self.output_keys).replace("'", '"')
-            prompt_of_output_format = f"Your output should be a JSON string with the following keys: {output_key_str}\n"
-        prompt = "Input: " + prompt
-        logging.debug(
-            "Running chatbot with prompt: %s",
-            prompt_of_time + prompt_of_output_format + prompt,
-        )
-        self.add_message(
-            OpenAIMessage(role, prompt_of_time + prompt_of_output_format + prompt)
-        )
+        prompt = self.get_prompt(input_str)
+        
+        logging.debug("Running chatbot with prompt: %s", prompt)
+        
+        self.add_message(OpenAIMessage(role, prompt))
         # Check token usage before sending history
         while self.check_token_usage() >= 1:
-            # self.summarize_history()
-            # TODO: summarize history
             try:
                 self.pop_oldest_history()
             except ValueError:
@@ -208,6 +218,7 @@ class OpenAIAgent:
             # Run with the tool output as the prompt
             return self.run(tool_output, "system")
         return parsed_content
+
 
     def rerun(self, prompt: str) -> str:
         """
