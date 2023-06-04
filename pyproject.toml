@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pop-llm"
-version = "0.0.3"
+version = "0.0.7"
 authors = [
   { name="Yibo Wei", email="david_wyb2001@outlook.com" },
 ]
