@@ -17,3 +17,5 @@ openai_api_key.txt
 # Distribution / packaging
 dist/
 *.egg-info/
+
+playground/
